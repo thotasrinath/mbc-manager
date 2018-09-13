@@ -9,12 +9,29 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class MbcClient {
 
 	@Id
-	private String id;
+	private String clientId;
 	private String clientName;
+	private String siteDescription;
 	private List<MoneyTransact> income;
 	private List<MoneyTransact> payments;
 	private double totalIncome;
 	private double totalExpenses;
+	
+	public String getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
+	public String getSiteDescription() {
+		return siteDescription;
+	}
+
+	public void setSiteDescription(String siteDescription) {
+		this.siteDescription = siteDescription;
+	}
 	
 
 	public double getTotalIncome() {
@@ -49,13 +66,6 @@ public class MbcClient {
 		this.payments = payments;
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
 
 	public String getClientName() {
 		return clientName;

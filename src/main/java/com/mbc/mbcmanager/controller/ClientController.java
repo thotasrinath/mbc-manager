@@ -1,28 +1,31 @@
 package com.mbc.mbcmanager.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbc.mbcmanager.entity.MbcClient;
-import com.mbc.mbcmanager.entity.MoneyTransact;
+import com.mbc.mbcmanager.vo.ClientVo;
 
 @RestController
+@RequestMapping("/client")
 public class ClientController {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
 	@CrossOrigin
-	@RequestMapping("/clients")
+	@RequestMapping(path = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	public List<MbcClient> getAllClients() {
 
 		Query query = new Query();
@@ -33,7 +36,7 @@ public class ClientController {
 	}
 
 	@CrossOrigin
-	@RequestMapping("/client/{id}")
+	@RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	public MbcClient getClient(@PathVariable String id) {
 
 		return mongoTemplate.findById(id, MbcClient.class);
@@ -41,29 +44,23 @@ public class ClientController {
 	}
 
 	@CrossOrigin
-	@RequestMapping("/clientsave")
-	public void saveClient() {
+	@RequestMapping(path = "/save", method = RequestMethod.POST, consumes = {
+			MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	public void saveClient(@RequestBody ClientVo clientVo) {
 
-		MbcClient mbcClient = new MbcClient();
-		mbcClient.setClientName("Srinath");
+		MbcClient mbcClient = null;
 
-		MoneyTransact one = new MoneyTransact("Cheque 123444", 9288);
-		one.setTransactionDate(new Date());
-		one.setTransactionId("1");
-		MoneyTransact two = new MoneyTransact("Cheque 123dvf4", 82772);
-		two.setTransactionDate(new Date());
-		two.setTransactionId("1");
+		if (StringUtils.isEmpty(clientVo.getClientId())) {
+			mbcClient = new MbcClient();
 
-		List<MoneyTransact> income = new ArrayList<MoneyTransact>();
-		income.add(one);
-		
-		List<MoneyTransact> expense = new ArrayList<MoneyTransact>();
-		expense.add(two);
+		} else {
+			mbcClient = mongoTemplate.findById(clientVo.getClientId(), MbcClient.class);
+		}
 
-		
-		mbcClient.setIncome(income);
-		mbcClient.setPayments(expense);
-		mbcClient.setTotalExpenses(100);
+		mbcClient.setClientId(clientVo.getClientId());
+		mbcClient.setClientName(clientVo.getClientName());
+		mbcClient.setSiteDescription(clientVo.getSiteDescription());
+
 		mongoTemplate.save(mbcClient);
 
 	}
