@@ -4,8 +4,9 @@ import java.util.Date;
 
 public class MoneyTransact {
 
-	private String transactionType;
 	private String transactionId;
+	private String transactionType;
+	private String vendorName;
 	private Date transactionDate;
 	private double amount;
 
@@ -17,6 +18,14 @@ public class MoneyTransact {
 		this.transactionId = transactionId;
 		this.transactionType = transactionType;
 		this.transactionDate = transactionDate;
+		this.amount = amount;
+	}
+	
+	public MoneyTransact(String transactionId, String transactionType, Date transactionDate, double amount,String vendorName) {
+		this.transactionId = transactionId;
+		this.transactionType = transactionType;
+		this.transactionDate = transactionDate;
+		this.vendorName = vendorName;
 		this.amount = amount;
 	}
 	
@@ -55,5 +64,13 @@ public class MoneyTransact {
 	public void setTransactionDate(Date transactionDate) {
 		this.transactionDate = transactionDate;
 	}
+	public String getVendorName() {
+		return vendorName;
+	}
+
+	public void setVendorName(String vendorName) {
+		this.vendorName = vendorName;
+	}
+
 
 }

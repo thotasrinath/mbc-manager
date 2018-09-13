@@ -4,8 +4,9 @@ import java.util.Date;
 
 public class ExpenseVo {
 
-	private String transactionType;
 	private String transactionId;
+	private String transactionType;
+	private String vendorName;
 	private Date transactionDate;
 	private double amount;
 
@@ -39,6 +40,14 @@ public class ExpenseVo {
 
 	public void setAmount(double amount) {
 		this.amount = amount;
+	}
+
+	public String getVendorName() {
+		return vendorName;
+	}
+
+	public void setVendorName(String vendorName) {
+		this.vendorName = vendorName;
 	}
 
 }

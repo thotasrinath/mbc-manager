@@ -4,8 +4,8 @@ import java.util.Date;
 
 public class IncomeVo {
 
-	private String transactionType;
 	private String transactionId;
+	private String transactionType;
 	private Date transactionDate;
 	private double amount;
 

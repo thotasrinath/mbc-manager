@@ -103,7 +103,7 @@ public class AccountsController {
 		if (StringUtils.isEmpty(expenseVo.getTransactionId())) {
 
 			MoneyTransact newTransact = new MoneyTransact(UUID.randomUUID().toString(), expenseVo.getTransactionType(),
-					expenseVo.getTransactionDate(), expenseVo.getAmount());
+					expenseVo.getTransactionDate(), expenseVo.getAmount(),expenseVo.getVendorName());
 			expenseTransacts.add(newTransact);
 
 		} else {
