@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mbc.mbcmanager.entity.MbcClient;
 import com.mbc.mbcmanager.entity.MoneyTransact;
+import com.mbc.mbcmanager.vo.ExpenseVo;
 import com.mbc.mbcmanager.vo.IncomeVo;
 
 @RestController
@@ -82,6 +83,65 @@ public class AccountsController {
 				.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
 
 		totalIncome.ifPresent(m -> mbcClient.setTotalIncome(m.getAmount()));
+
+		mongoTemplate.save(mbcClient);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(path = "/addexpense/{clientId}", method = RequestMethod.POST, consumes = {
+			MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	public void addExpense(@RequestBody ExpenseVo expenseVo, @PathVariable String clientId) {
+
+		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
+
+		List<MoneyTransact> expenseTransacts = mbcClient.getPayments();
+		if (expenseTransacts == null) {
+
+			expenseTransacts = new ArrayList<MoneyTransact>();
+			mbcClient.setIncome(expenseTransacts);
+		}
+		if (StringUtils.isEmpty(expenseVo.getTransactionId())) {
+
+			MoneyTransact newTransact = new MoneyTransact(UUID.randomUUID().toString(), expenseVo.getTransactionType(),
+					expenseVo.getTransactionDate(), expenseVo.getAmount());
+			expenseTransacts.add(newTransact);
+
+		} else {
+
+			expenseTransacts.stream().filter(mt -> mt.getTransactionId().equals(expenseVo.getTransactionId()))
+					.forEach(mt -> {
+
+						mt.setAmount(expenseVo.getAmount());
+						mt.setTransactionType(expenseVo.getTransactionType());
+						mt.setTransactionDate(expenseVo.getTransactionDate());
+
+					});
+
+		}
+		Optional<MoneyTransact> totalIncome = expenseTransacts.stream()
+				.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
+
+		totalIncome.ifPresent(m -> mbcClient.setTotalExpenses(m.getAmount()));
+
+		mongoTemplate.save(mbcClient);
+
+	}
+
+	@CrossOrigin
+	@RequestMapping(path = "/delexpense/{clientId}", method = RequestMethod.POST, consumes = {
+			MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	public void delExpense(@RequestBody ExpenseVo expenseVo, @PathVariable String clientId) {
+
+		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
+
+		List<MoneyTransact> expenseTransacts = mbcClient.getPayments();
+
+		expenseTransacts.removeIf(m -> m.getTransactionId().equals(expenseVo.getTransactionId()));
+
+		Optional<MoneyTransact> totalIncome = expenseTransacts.stream()
+				.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
+
+		totalIncome.ifPresent(m -> mbcClient.setTotalExpenses(m.getAmount()));
 
 		mongoTemplate.save(mbcClient);
 	}
