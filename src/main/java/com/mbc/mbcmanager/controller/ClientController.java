@@ -29,7 +29,7 @@ public class ClientController {
 	private MongoTemplate mongoTemplate;
 
 	@CrossOrigin
-	@RequestMapping(path = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	@RequestMapping(path = "/list", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	public List<MbcClient> getAllClients() {
 
 		Query query = new Query();
@@ -49,6 +49,8 @@ public class ClientController {
 			Map<String,DoubleSummaryStatistics> groupedPayments = mbcClient.getPayments().stream().collect(Collectors.groupingBy(MoneyTransact::getVendorName,Collectors.summarizingDouble(MoneyTransact::getAmount)));
 			mbcClient.setGroupedPayments(groupedPayments);
 		}
+		
+		mbcClient.setPayments(null);
 
 		return mbcClient;
 

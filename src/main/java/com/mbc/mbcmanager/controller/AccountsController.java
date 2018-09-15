@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -76,13 +77,13 @@ public class AccountsController {
 		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
 
 		List<MoneyTransact> incomeTransacts = mbcClient.getIncome();
-		
+
 		incomeTransacts.removeIf(m -> m.getTransactionId().equals(incomeVo.getTransactionId()));
-		
-		if(incomeTransacts.size()==0) {
+
+		if (incomeTransacts.size() == 0) {
 			mbcClient.setTotalIncome(0);
-		}else {
-			
+		} else {
+
 			Optional<MoneyTransact> totalIncome = incomeTransacts.stream()
 					.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
 
@@ -143,7 +144,7 @@ public class AccountsController {
 		List<MoneyTransact> expenseTransacts = mbcClient.getPayments();
 
 		expenseTransacts.removeIf(m -> m.getTransactionId().equals(expenseVo.getTransactionId()));
-		
+
 		if (expenseTransacts.size() == 0) {
 			mbcClient.setTotalExpenses(0);
 		} else {
@@ -155,6 +156,19 @@ public class AccountsController {
 		}
 
 		mongoTemplate.save(mbcClient);
+	}
+
+	@CrossOrigin
+	@RequestMapping(path = "/expensesbyvendor/{clientId}/{vendorName}", method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_UTF8_VALUE })
+	public List<MoneyTransact> getExpensesByVendor(@PathVariable String clientId, @PathVariable String vendorName) {
+
+		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
+
+		List<MoneyTransact> expenseTransacts = mbcClient.getPayments().stream()
+				.filter(m -> m.getVendorName().equals(vendorName)).collect(Collectors.toList());
+
+		return expenseTransacts;
 	}
 
 }
