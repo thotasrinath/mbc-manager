@@ -76,17 +76,22 @@ public class AccountsController {
 		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
 
 		List<MoneyTransact> incomeTransacts = mbcClient.getIncome();
-
+		
 		incomeTransacts.removeIf(m -> m.getTransactionId().equals(incomeVo.getTransactionId()));
+		
+		if(incomeTransacts.size()==0) {
+			mbcClient.setTotalIncome(0);
+		}else {
+			
+			Optional<MoneyTransact> totalIncome = incomeTransacts.stream()
+					.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
 
-		Optional<MoneyTransact> totalIncome = incomeTransacts.stream()
-				.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
-
-		totalIncome.ifPresent(m -> mbcClient.setTotalIncome(m.getAmount()));
+			totalIncome.ifPresent(m -> mbcClient.setTotalIncome(m.getAmount()));
+		}
 
 		mongoTemplate.save(mbcClient);
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping(path = "/addexpense/{clientId}", method = RequestMethod.POST, consumes = {
 			MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
@@ -98,12 +103,12 @@ public class AccountsController {
 		if (expenseTransacts == null) {
 
 			expenseTransacts = new ArrayList<MoneyTransact>();
-			mbcClient.setIncome(expenseTransacts);
+			mbcClient.setPayments(expenseTransacts);
 		}
 		if (StringUtils.isEmpty(expenseVo.getTransactionId())) {
 
 			MoneyTransact newTransact = new MoneyTransact(UUID.randomUUID().toString(), expenseVo.getTransactionType(),
-					expenseVo.getTransactionDate(), expenseVo.getAmount(),expenseVo.getVendorName());
+					expenseVo.getTransactionDate(), expenseVo.getAmount(), expenseVo.getVendorName());
 			expenseTransacts.add(newTransact);
 
 		} else {
@@ -114,6 +119,7 @@ public class AccountsController {
 						mt.setAmount(expenseVo.getAmount());
 						mt.setTransactionType(expenseVo.getTransactionType());
 						mt.setTransactionDate(expenseVo.getTransactionDate());
+						mt.setVendorName(expenseVo.getVendorName());
 
 					});
 
@@ -137,11 +143,16 @@ public class AccountsController {
 		List<MoneyTransact> expenseTransacts = mbcClient.getPayments();
 
 		expenseTransacts.removeIf(m -> m.getTransactionId().equals(expenseVo.getTransactionId()));
+		
+		if (expenseTransacts.size() == 0) {
+			mbcClient.setTotalExpenses(0);
+		} else {
 
-		Optional<MoneyTransact> totalIncome = expenseTransacts.stream()
-				.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
+			Optional<MoneyTransact> totalIncome = expenseTransacts.stream()
+					.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
 
-		totalIncome.ifPresent(m -> mbcClient.setTotalExpenses(m.getAmount()));
+			totalIncome.ifPresent(m -> mbcClient.setTotalExpenses(m.getAmount()));
+		}
 
 		mongoTemplate.save(mbcClient);
 	}

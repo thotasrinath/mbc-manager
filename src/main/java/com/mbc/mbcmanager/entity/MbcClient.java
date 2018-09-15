@@ -1,6 +1,8 @@
 package com.mbc.mbcmanager.entity;
 
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,6 +18,7 @@ public class MbcClient {
 	private List<MoneyTransact> payments;
 	private double totalIncome;
 	private double totalExpenses;
+	private transient Map<String,DoubleSummaryStatistics> groupedPayments;
 	
 	public String getClientId() {
 		return clientId;
@@ -73,5 +76,13 @@ public class MbcClient {
 
 	public void setClientName(String clientName) {
 		this.clientName = clientName;
+	}
+
+	public Map<String, DoubleSummaryStatistics> getGroupedPayments() {
+		return groupedPayments;
+	}
+
+	public void setGroupedPayments(Map<String, DoubleSummaryStatistics> groupedPayments) {
+		this.groupedPayments = groupedPayments;
 	}
 }

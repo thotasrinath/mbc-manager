@@ -1,6 +1,9 @@
 package com.mbc.mbcmanager.controller;
 
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbc.mbcmanager.entity.MbcClient;
+import com.mbc.mbcmanager.entity.MoneyTransact;
 import com.mbc.mbcmanager.vo.ClientVo;
 
 @RestController
@@ -38,8 +42,15 @@ public class ClientController {
 	@CrossOrigin
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	public MbcClient getClient(@PathVariable String id) {
+		
+		MbcClient mbcClient = mongoTemplate.findById(id, MbcClient.class);
+		
+		if(mbcClient.getPayments()!=null) {
+			Map<String,DoubleSummaryStatistics> groupedPayments = mbcClient.getPayments().stream().collect(Collectors.groupingBy(MoneyTransact::getVendorName,Collectors.summarizingDouble(MoneyTransact::getAmount)));
+			mbcClient.setGroupedPayments(groupedPayments);
+		}
 
-		return mongoTemplate.findById(id, MbcClient.class);
+		return mbcClient;
 
 	}
 
