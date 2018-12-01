@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.mbc.mbcmanager.vo.MoneyTransactVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.MediaType;
@@ -161,14 +162,21 @@ public class AccountsController {
 	@CrossOrigin
 	@RequestMapping(path = "/expensesbyvendor/{clientId}/{vendorName}", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_UTF8_VALUE })
-	public List<MoneyTransact> getExpensesByVendor(@PathVariable String clientId, @PathVariable String vendorName) {
+	public List<MoneyTransactVo> getExpensesByVendor(@PathVariable String clientId, @PathVariable String vendorName) {
 
 		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
 
 		List<MoneyTransact> expenseTransacts = mbcClient.getPayments().stream()
 				.filter(m -> m.getVendorName().equals(vendorName)).collect(Collectors.toList());
 
-		return expenseTransacts;
+		List<MoneyTransactVo> moneyTransactVos = new ArrayList<>();
+
+		expenseTransacts.forEach(m->{
+			MoneyTransactVo moneyTransactVo = new MoneyTransactVo(m);
+            moneyTransactVos.add(moneyTransactVo);
+		});
+
+		return moneyTransactVos;
 	}
 
 }

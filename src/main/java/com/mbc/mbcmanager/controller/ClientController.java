@@ -46,7 +46,7 @@ public class ClientController {
 		MbcClient mbcClient = mongoTemplate.findById(id, MbcClient.class);
 		
 		if(mbcClient.getPayments()!=null) {
-			Map<String,DoubleSummaryStatistics> groupedPayments = mbcClient.getPayments().stream().collect(Collectors.groupingBy(MoneyTransact::getVendorName,Collectors.summarizingDouble(MoneyTransact::getAmount)));
+			Map<String,Double> groupedPayments = mbcClient.getPayments().stream().collect(Collectors.groupingBy(MoneyTransact::getVendorName,Collectors.summingDouble(MoneyTransact::getAmount)));
 			mbcClient.setGroupedPayments(groupedPayments);
 		}
 		

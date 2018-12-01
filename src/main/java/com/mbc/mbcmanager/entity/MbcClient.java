@@ -18,7 +18,7 @@ public class MbcClient {
 	private List<MoneyTransact> payments;
 	private double totalIncome;
 	private double totalExpenses;
-	private transient Map<String,DoubleSummaryStatistics> groupedPayments;
+	private transient Map<String,Double> groupedPayments;
 	
 	public String getClientId() {
 		return clientId;
@@ -78,11 +78,11 @@ public class MbcClient {
 		this.clientName = clientName;
 	}
 
-	public Map<String, DoubleSummaryStatistics> getGroupedPayments() {
+	public Map<String, Double> getGroupedPayments() {
 		return groupedPayments;
 	}
 
-	public void setGroupedPayments(Map<String, DoubleSummaryStatistics> groupedPayments) {
+	public void setGroupedPayments(Map<String, Double> groupedPayments) {
 		this.groupedPayments = groupedPayments;
 	}
 }
