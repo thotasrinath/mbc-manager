@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.mbc.mbcmanager.vo.MoneyTransactVo;
+import com.mbc.mbcmanager.vo.ResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.MediaType;
@@ -27,156 +28,214 @@ import com.mbc.mbcmanager.vo.IncomeVo;
 @RequestMapping("/account")
 public class AccountsController {
 
-	@Autowired
-	private MongoTemplate mongoTemplate;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
-	@CrossOrigin
-	@RequestMapping(path = "/addincome/{clientId}", method = RequestMethod.POST, consumes = {
-			MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
-	public void addIncome(@RequestBody IncomeVo incomeVo, @PathVariable String clientId) {
+    @CrossOrigin
+    @RequestMapping(path = "/addincome/{clientId}", method = RequestMethod.POST, consumes = {
+            MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    public ResponseVo addIncome(@RequestBody IncomeVo incomeVo, @PathVariable String clientId) {
 
-		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
+        ResponseVo responseVo = new ResponseVo();
 
-		List<MoneyTransact> incomeTransacts = mbcClient.getIncome();
-		if (incomeTransacts == null) {
+        try {
+            MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
 
-			incomeTransacts = new ArrayList<MoneyTransact>();
-			mbcClient.setIncome(incomeTransacts);
-		}
-		if (StringUtils.isEmpty(incomeVo.getTransactionId())) {
+            List<MoneyTransact> incomeTransacts = mbcClient.getIncome();
+            if (incomeTransacts == null) {
 
-			MoneyTransact newTransact = new MoneyTransact(UUID.randomUUID().toString(), incomeVo.getTransactionType(),
-					incomeVo.getTransactionDate(), incomeVo.getAmount());
-			incomeTransacts.add(newTransact);
+                incomeTransacts = new ArrayList<MoneyTransact>();
+                mbcClient.setIncome(incomeTransacts);
+            }
+            if (StringUtils.isEmpty(incomeVo.getTransactionId())) {
 
-		} else {
+                MoneyTransact newTransact = new MoneyTransact(UUID.randomUUID().toString(), incomeVo.getReferenceNo(), incomeVo.getTransactionType(),
+                        incomeVo.getTransactionDate(), incomeVo.getAmount());
+                incomeTransacts.add(newTransact);
 
-			incomeTransacts.stream().filter(mt -> mt.getTransactionId().equals(incomeVo.getTransactionId()))
-					.forEach(mt -> {
+            } else {
 
-						mt.setAmount(incomeVo.getAmount());
-						mt.setTransactionType(incomeVo.getTransactionType());
-						mt.setTransactionDate(incomeVo.getTransactionDate());
+                incomeTransacts.stream().filter(mt -> mt.getTransactionId().equals(incomeVo.getTransactionId()))
+                        .forEach(mt -> {
 
-					});
+                            mt.setAmount(incomeVo.getAmount());
+                            mt.setTransactionType(incomeVo.getTransactionType());
+                            mt.setTransactionDate(incomeVo.getTransactionDate());
+                            mt.setReferenceNo(incomeVo.getReferenceNo());
 
-		}
-		Optional<MoneyTransact> totalIncome = incomeTransacts.stream()
-				.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
+                        });
 
-		totalIncome.ifPresent(m -> mbcClient.setTotalIncome(m.getAmount()));
+            }
+            Optional<MoneyTransact> totalIncome = incomeTransacts.stream()
+                    .reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
 
-		mongoTemplate.save(mbcClient);
+            totalIncome.ifPresent(m -> mbcClient.setTotalIncome(m.getAmount()));
 
-	}
+            mongoTemplate.save(mbcClient);
 
-	@CrossOrigin
-	@RequestMapping(path = "/delincome/{clientId}", method = RequestMethod.POST, consumes = {
-			MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
-	public void delIncome(@RequestBody IncomeVo incomeVo, @PathVariable String clientId) {
+            responseVo.setStatus("success");
 
-		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
 
-		List<MoneyTransact> incomeTransacts = mbcClient.getIncome();
+        } catch (Exception e) {
+            responseVo.setStatus("failed");
+            responseVo.setErrorMessage(e.getMessage());
 
-		incomeTransacts.removeIf(m -> m.getTransactionId().equals(incomeVo.getTransactionId()));
+        }
+        return responseVo;
 
-		if (incomeTransacts.size() == 0) {
-			mbcClient.setTotalIncome(0);
-		} else {
+    }
 
-			Optional<MoneyTransact> totalIncome = incomeTransacts.stream()
-					.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
+    @CrossOrigin
+    @RequestMapping(path = "/delincome/{clientId}", method = RequestMethod.POST, consumes = {
+            MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    public ResponseVo delIncome(@RequestBody IncomeVo incomeVo, @PathVariable String clientId) {
 
-			totalIncome.ifPresent(m -> mbcClient.setTotalIncome(m.getAmount()));
-		}
+        ResponseVo responseVo = new ResponseVo();
 
-		mongoTemplate.save(mbcClient);
-	}
+        try {
+            MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
 
-	@CrossOrigin
-	@RequestMapping(path = "/addexpense/{clientId}", method = RequestMethod.POST, consumes = {
-			MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
-	public void addExpense(@RequestBody ExpenseVo expenseVo, @PathVariable String clientId) {
+            List<MoneyTransact> incomeTransacts = mbcClient.getIncome();
 
-		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
+            incomeTransacts.removeIf(m -> m.getTransactionId().equals(incomeVo.getTransactionId()));
 
-		List<MoneyTransact> expenseTransacts = mbcClient.getPayments();
-		if (expenseTransacts == null) {
+            if (incomeTransacts.size() == 0) {
+                mbcClient.setTotalIncome(0);
+            } else {
 
-			expenseTransacts = new ArrayList<MoneyTransact>();
-			mbcClient.setPayments(expenseTransacts);
-		}
-		if (StringUtils.isEmpty(expenseVo.getTransactionId())) {
+                Optional<MoneyTransact> totalIncome = incomeTransacts.stream()
+                        .reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
 
-			MoneyTransact newTransact = new MoneyTransact(UUID.randomUUID().toString(), expenseVo.getTransactionType(),
-					expenseVo.getTransactionDate(), expenseVo.getAmount(), expenseVo.getVendorName());
-			expenseTransacts.add(newTransact);
+                totalIncome.ifPresent(m -> mbcClient.setTotalIncome(m.getAmount()));
+            }
 
-		} else {
+            mongoTemplate.save(mbcClient);
+            responseVo.setStatus("success");
+        } catch (Exception e) {
+            responseVo.setStatus("failed");
+            responseVo.setErrorMessage(e.getMessage());
+        }
+        return responseVo;
 
-			expenseTransacts.stream().filter(mt -> mt.getTransactionId().equals(expenseVo.getTransactionId()))
-					.forEach(mt -> {
+    }
 
-						mt.setAmount(expenseVo.getAmount());
-						mt.setTransactionType(expenseVo.getTransactionType());
-						mt.setTransactionDate(expenseVo.getTransactionDate());
-						mt.setVendorName(expenseVo.getVendorName());
+    @CrossOrigin
+    @RequestMapping(path = "/addexpense/{clientId}", method = RequestMethod.POST, consumes = {
+            MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    public ResponseVo addExpense(@RequestBody ExpenseVo expenseVo, @PathVariable String clientId) {
 
-					});
+        ResponseVo responseVo = new ResponseVo();
 
-		}
-		Optional<MoneyTransact> totalIncome = expenseTransacts.stream()
-				.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
+        try {
+            MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
 
-		totalIncome.ifPresent(m -> mbcClient.setTotalExpenses(m.getAmount()));
+            List<MoneyTransact> expenseTransacts = mbcClient.getPayments();
+            if (expenseTransacts == null) {
 
-		mongoTemplate.save(mbcClient);
+                expenseTransacts = new ArrayList<MoneyTransact>();
+                mbcClient.setPayments(expenseTransacts);
+            }
+            if (StringUtils.isEmpty(expenseVo.getTransactionId())) {
 
-	}
+                MoneyTransact newTransact = new MoneyTransact(UUID.randomUUID().toString(), expenseVo.getReferenceNo(), expenseVo.getTransactionType(),
+                        expenseVo.getTransactionDate(), expenseVo.getAmount(), expenseVo.getVendorName());
+                expenseTransacts.add(newTransact);
 
-	@CrossOrigin
-	@RequestMapping(path = "/delexpense/{clientId}", method = RequestMethod.POST, consumes = {
-			MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
-	public void delExpense(@RequestBody ExpenseVo expenseVo, @PathVariable String clientId) {
+            } else {
 
-		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
+                expenseTransacts.stream().filter(mt -> mt.getTransactionId().equals(expenseVo.getTransactionId()))
+                        .forEach(mt -> {
 
-		List<MoneyTransact> expenseTransacts = mbcClient.getPayments();
+                            mt.setAmount(expenseVo.getAmount());
+                            mt.setTransactionType(expenseVo.getTransactionType());
+                            mt.setTransactionDate(expenseVo.getTransactionDate());
+                            mt.setVendorName(expenseVo.getVendorName());
+                            mt.setReferenceNo(expenseVo.getReferenceNo());
 
-		expenseTransacts.removeIf(m -> m.getTransactionId().equals(expenseVo.getTransactionId()));
+                        });
 
-		if (expenseTransacts.size() == 0) {
-			mbcClient.setTotalExpenses(0);
-		} else {
+            }
+            Optional<MoneyTransact> totalIncome = expenseTransacts.stream()
+                    .reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
 
-			Optional<MoneyTransact> totalIncome = expenseTransacts.stream()
-					.reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
+            totalIncome.ifPresent(m -> mbcClient.setTotalExpenses(m.getAmount()));
 
-			totalIncome.ifPresent(m -> mbcClient.setTotalExpenses(m.getAmount()));
-		}
+            mongoTemplate.save(mbcClient);
+            responseVo.setStatus("success");
 
-		mongoTemplate.save(mbcClient);
-	}
+        } catch (Exception e) {
+            responseVo.setStatus("failed");
+            responseVo.setErrorMessage(e.getMessage());
+        }
+        return responseVo;
 
-	@CrossOrigin
-	@RequestMapping(path = "/expensesbyvendor/{clientId}/{vendorName}", method = RequestMethod.GET, produces = {
-			MediaType.APPLICATION_JSON_UTF8_VALUE })
-	public List<MoneyTransactVo> getExpensesByVendor(@PathVariable String clientId, @PathVariable String vendorName) {
+    }
 
-		MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
+    @CrossOrigin
+    @RequestMapping(path = "/delexpense/{clientId}", method = RequestMethod.POST, consumes = {
+            MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    public ResponseVo delExpense(@RequestBody ExpenseVo expenseVo, @PathVariable String clientId) {
 
-		List<MoneyTransact> expenseTransacts = mbcClient.getPayments().stream()
-				.filter(m -> m.getVendorName().equals(vendorName)).collect(Collectors.toList());
+        ResponseVo responseVo = new ResponseVo();
 
-		List<MoneyTransactVo> moneyTransactVos = new ArrayList<>();
+        try {
+            MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
 
-		expenseTransacts.forEach(m->{
-			MoneyTransactVo moneyTransactVo = new MoneyTransactVo(m);
-            moneyTransactVos.add(moneyTransactVo);
-		});
+            List<MoneyTransact> expenseTransacts = mbcClient.getPayments();
 
-		return moneyTransactVos;
-	}
+            expenseTransacts.removeIf(m -> m.getTransactionId().equals(expenseVo.getTransactionId()));
+
+            if (expenseTransacts.size() == 0) {
+                mbcClient.setTotalExpenses(0);
+            } else {
+
+                Optional<MoneyTransact> totalIncome = expenseTransacts.stream()
+                        .reduce((a1, a2) -> new MoneyTransact(a2.getAmount() + a1.getAmount()));
+
+                totalIncome.ifPresent(m -> mbcClient.setTotalExpenses(m.getAmount()));
+            }
+
+            mongoTemplate.save(mbcClient);
+            responseVo.setStatus("success");
+
+        } catch (Exception e) {
+            responseVo.setStatus("failed");
+            responseVo.setErrorMessage(e.getMessage());
+        }
+        return responseVo;
+
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/expensesbyvendor/{clientId}/{vendorName}", method = RequestMethod.GET, produces = {
+            MediaType.APPLICATION_JSON_UTF8_VALUE})
+    public ResponseVo getExpensesByVendor(@PathVariable String clientId, @PathVariable String vendorName) {
+
+        ResponseVo<List<MoneyTransactVo>> responseVo = new ResponseVo<>();
+
+        try {
+            MbcClient mbcClient = mongoTemplate.findById(clientId, MbcClient.class);
+
+            List<MoneyTransact> expenseTransacts = mbcClient.getPayments().stream()
+                    .filter(m -> m.getVendorName().equals(vendorName)).collect(Collectors.toList());
+
+            List<MoneyTransactVo> moneyTransactVos = new ArrayList<>();
+
+            expenseTransacts.forEach(m -> {
+                MoneyTransactVo moneyTransactVo = new MoneyTransactVo(m);
+                moneyTransactVos.add(moneyTransactVo);
+            });
+
+            responseVo.setStatus("success");
+            responseVo.setResponseObject(moneyTransactVos);
+
+        } catch (Exception e) {
+            responseVo.setStatus("failed");
+            responseVo.setErrorMessage(e.getMessage());
+        }
+        return responseVo;
+
+
+    }
 
 }

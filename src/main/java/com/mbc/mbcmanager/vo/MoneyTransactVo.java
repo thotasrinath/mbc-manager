@@ -3,13 +3,15 @@ package com.mbc.mbcmanager.vo;
 import com.mbc.mbcmanager.entity.MoneyTransact;
 
 import java.text.DateFormat;
+import java.util.Date;
 
 public class MoneyTransactVo {
 
     private String transactionId;
     private String transactionType;
+    private String referenceNo;
     private String vendorName;
-    private String transactionDate;
+    private Date transactionDate;
     private double amount;
 
     public MoneyTransactVo(MoneyTransact mt){
@@ -18,7 +20,8 @@ public class MoneyTransactVo {
         this.transactionType = mt.getTransactionType();
         this.vendorName = mt.getVendorName();
         this.amount = mt.getAmount();
-        this.transactionDate = DateFormat.getDateInstance().format(mt.getTransactionDate());
+        this.transactionDate = mt.getTransactionDate();
+        this.referenceNo = mt.getReferenceNo();
 
 
     }
@@ -47,11 +50,12 @@ public class MoneyTransactVo {
         this.vendorName = vendorName;
     }
 
-    public String getTransactionDate() {
+
+    public Date getTransactionDate() {
         return transactionDate;
     }
 
-    public void setTransactionDate(String transactionDate) {
+    public void setTransactionDate(Date transactionDate) {
         this.transactionDate = transactionDate;
     }
 
@@ -63,5 +67,11 @@ public class MoneyTransactVo {
         this.amount = amount;
     }
 
+    public String getReferenceNo() {
+        return referenceNo;
+    }
 
+    public void setReferenceNo(String referenceNo) {
+        this.referenceNo = referenceNo;
+    }
 }

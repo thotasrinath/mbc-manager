@@ -4,41 +4,51 @@ import java.util.Date;
 
 public class IncomeVo {
 
-	private String transactionId;
-	private String transactionType;
-	private Date transactionDate;
-	private double amount;
+    private String transactionId;
+    private String referenceNo;
+    private String transactionType;
+    private Date transactionDate;
+    private double amount;
 
-	public String getTransactionType() {
-		return transactionType;
-	}
+    public String getReferenceNo() {
+        return referenceNo;
+    }
 
-	public void setTransactionType(String transactionType) {
-		this.transactionType = transactionType;
-	}
+    public void setReferenceNo(String referenceNo) {
+        this.referenceNo = referenceNo;
+    }
 
-	public String getTransactionId() {
-		return transactionId;
-	}
 
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
-	}
+    public String getTransactionType() {
+        return transactionType;
+    }
 
-	public Date getTransactionDate() {
-		return transactionDate;
-	}
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
 
-	public void setTransactionDate(Date transactionDate) {
-		this.transactionDate = transactionDate;
-	}
+    public String getTransactionId() {
+        return transactionId;
+    }
 
-	public double getAmount() {
-		return amount;
-	}
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
 
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
+    public Date getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
 
 }

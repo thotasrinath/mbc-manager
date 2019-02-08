@@ -4,73 +4,85 @@ import java.util.Date;
 
 public class MoneyTransact {
 
-	private String transactionId;
-	private String transactionType;
-	private String vendorName;
-	private Date transactionDate;
-	private double amount;
+    private String transactionId;
+    private String referenceNo;
+    private String transactionType;
+    private String vendorName;
+    private Date transactionDate;
+    private double amount;
 
-	public MoneyTransact() {
+    public MoneyTransact() {
 
-	}
+    }
 
-	public MoneyTransact(String transactionId, String transactionType, Date transactionDate, double amount) {
-		this.transactionId = transactionId;
-		this.transactionType = transactionType;
-		this.transactionDate = transactionDate;
-		this.amount = amount;
-	}
-	
-	public MoneyTransact(String transactionId, String transactionType, Date transactionDate, double amount,String vendorName) {
-		this.transactionId = transactionId;
-		this.transactionType = transactionType;
-		this.transactionDate = transactionDate;
-		this.vendorName = vendorName;
-		this.amount = amount;
-	}
-	
-	public MoneyTransact(double amount) {
-		this.amount = amount;
-	}
+    public MoneyTransact(String transactionId,String referenceNo, String transactionType, Date transactionDate, double amount) {
+        this.transactionId = transactionId;
+        this.referenceNo = referenceNo;
+        this.transactionType = transactionType;
+        this.transactionDate = transactionDate;
+        this.amount = amount;
+    }
 
-	public String getTransactionType() {
-		return transactionType;
-	}
+    public MoneyTransact(String transactionId,String referenceNo, String transactionType, Date transactionDate, double amount, String vendorName) {
+        this.transactionId = transactionId;
+        this.referenceNo = referenceNo;
+        this.transactionType = transactionType;
+        this.transactionDate = transactionDate;
+        this.vendorName = vendorName;
+        this.amount = amount;
+    }
 
-	public void setTransactionType(String transactionType) {
-		this.transactionType = transactionType;
-	}
+    public MoneyTransact(double amount) {
+        this.amount = amount;
+    }
 
-	public double getAmount() {
-		return amount;
-	}
+    public String getTransactionType() {
+        return transactionType;
+    }
 
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
 
-	public String getTransactionId() {
-		return transactionId;
-	}
+    public double getAmount() {
+        return amount;
+    }
 
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
-	}
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
 
-	public Date getTransactionDate() {
-		return transactionDate;
-	}
+    public String getTransactionId() {
+        return transactionId;
+    }
 
-	public void setTransactionDate(Date transactionDate) {
-		this.transactionDate = transactionDate;
-	}
-	public String getVendorName() {
-		return vendorName;
-	}
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
 
-	public void setVendorName(String vendorName) {
-		this.vendorName = vendorName;
-	}
+    public Date getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
+    }
+
+    public String getVendorName() {
+        return vendorName;
+    }
+
+    public void setVendorName(String vendorName) {
+        this.vendorName = vendorName;
+    }
+
+    public String getReferenceNo() {
+        return referenceNo;
+    }
+
+    public void setReferenceNo(String referenceNo) {
+        this.referenceNo = referenceNo;
+    }
 
 
 }

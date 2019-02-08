@@ -5,7 +5,9 @@ import java.util.Date;
 public class ExpenseVo {
 
 	private String transactionId;
+	private String referenceNo;
 	private String transactionType;
+
 	private String vendorName;
 	private Date transactionDate;
 	private double amount;
@@ -48,6 +50,14 @@ public class ExpenseVo {
 
 	public void setVendorName(String vendorName) {
 		this.vendorName = vendorName;
+	}
+
+	public String getReferenceNo() {
+		return referenceNo;
+	}
+
+	public void setReferenceNo(String referenceNo) {
+		this.referenceNo = referenceNo;
 	}
 
 }
